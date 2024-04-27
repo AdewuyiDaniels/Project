@@ -49,5 +49,37 @@ def sample_response():
     """
     return render_template('sample_response.html')
 
+@app.route('/clean-dataset', methods=['POST'])
+def clean_dataset_endpoint():
+    """
+    Endpoint to clean the dataset.
+    Input: Form data containing 'dataset_file' (file, zip or direct file upload).
+    Output: JSON with 'cleaned_dataset_path' (string).
+    """
+    dataset_file = request.files.get('dataset_file')
+    cleaned_dataset_path = clean_dataset(dataset_file)
+    return jsonify({"cleaned_dataset_path": cleaned_dataset_path})
+
+@app.route('/create-vector-db', methods=['POST'])
+def create_vector_db_endpoint():
+    """
+    Endpoint to create a vector database.
+    Output: JSON with 'database_name' (string).
+    """
+    database_name = create_vector_database()
+    return jsonify({"database_name": database_name})
+
+@app.route('/select-similarity-metric', methods=['POST'])
+def select_similarity_metric_endpoint():
+    """
+    Endpoint to select a similarity metric.
+    Output: JSON with 'selected_metric' (string).
+    """
+    # You may need to pass necessary data as input for selecting the similarity metric
+    dataset_vectors = ...  # Fetch dataset vectors
+    selected_metric = select_similarity_metric(dataset_vectors)
+    return jsonify({"selected_metric": selected_metric})
+
+
 if __name__ == '__main__':
     app.run(debug=True)
