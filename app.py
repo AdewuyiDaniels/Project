@@ -1,4 +1,7 @@
 from flask import Flask, request, jsonify, render_template
+from services.data_preparation.data_cleaning import clean_dataset
+from services.backend_setup.backend_setup import create_vector_database, evaluate_similarity_metrics
+from data_preparation.web_scraping import scrape_product_images
 
 app = Flask(__name__)
 
@@ -76,9 +79,26 @@ def select_similarity_metric_endpoint():
     Output: JSON with 'selected_metric' (string).
     """
     # You may need to pass necessary data as input for selecting the similarity metric
-    dataset_vectors = ...  # Fetch dataset vectors
+    dataset_vectors = database_name  # Fetch dataset vectors
     selected_metric = select_similarity_metric(dataset_vectors)
     return jsonify({"selected_metric": selected_metric})
+
+@app.route('/scrape-images', methods=['POST'])
+def scrape_images():
+    """
+    Endpoint to trigger web scraping for product images.
+    Input: JSON data containing 'url' and 'output_directory'.
+    Output: JSON with 'image_paths'.
+    """
+    data = request.json
+    url = data.get('url')
+    output_directory = data.get('output_directory')
+
+    if url and output_directory:
+        image_paths = scrape_product_images(url, output_directory)
+        return jsonify({"image_paths": image_paths}), 200
+    else:
+        return jsonify({"message": "URL and output directory are required."}), 400
 
 
 if __name__ == '__main__':
