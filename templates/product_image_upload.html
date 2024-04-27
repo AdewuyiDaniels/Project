@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Image Upload Interface</title>
+</head>
+<body>
+    <h1>Product Image Upload Interface</h1>
+    <form id="productImageUploadForm" enctype="multipart/form-data">
+        <label for="productImage">Upload product image:</label>
+        <input type="file" id="productImage" name="productImage">
+        <button type="submit">Submit</button>
+    </form>
+    <div id="response"></div>
+
+    <script>
+        document.getElementById("productImageUploadForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const formData = new FormData();
+            const productImage = document.getElementById("productImage").files[0];
+            formData.append('product_image', productImage);
+            fetch('/product-image-upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("response").innerText = data.response;
+                // Display product description and related products
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>

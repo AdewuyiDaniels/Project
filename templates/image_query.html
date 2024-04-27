@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Query Interface</title>
+</head>
+<body>
+    <h1>Image Query Interface</h1>
+    <form id="imageQueryForm" enctype="multipart/form-data">
+        <label for="image">Upload image:</label>
+        <input type="file" id="image" name="image">
+        <button type="submit">Submit</button>
+    </form>
+    <div id="response"></div>
+
+    <script>
+        document.getElementById("imageQueryForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const formData = new FormData();
+            const image = document.getElementById("image").files[0];
+            formData.append('image', image);
+            fetch('/image-query', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("response").innerText = data.response;
+                // Update product details table here if needed
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>

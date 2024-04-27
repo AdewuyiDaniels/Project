@@ -2,8 +2,28 @@ from flask import Flask, request, jsonify, render_template
 from services.data_preparation.data_cleaning import clean_dataset
 from services.backend_setup.backend_setup import create_vector_database, evaluate_similarity_metrics
 from data_preparation.web_scraping import scrape_product_images
+from services.data_preparation import prepare_training_data
+from services.cnn_model import build_cnn_model
+import numpy as np
+
 
 app = Flask(__name__)
+
+# Paths to training data CSV and image directory
+CSV_FILE = 'data/CNN_Model_Train_Data.csv'
+IMG_SIZE = (224, 224)  # Example size, adjust as needed
+
+# Prepare training data
+X_train, X_val, y_train, y_val = prepare_training_data(CSV_FILE, img_size=IMG_SIZE)
+
+# Build CNN model
+input_shape = (IMG_SIZE[0], IMG_SIZE[1], 3)  # Assuming 3 color channels (RGB)
+num_classes = len(np.unique(y_train))  # Number of unique labels
+model = build_cnn_model(input_shape, num_classes)
+
+# Train the model
+history = model.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_val, y_val))
+
 
 @app.route('/product-recommendation', methods=['POST'])
 def product_recommendation():
@@ -99,6 +119,37 @@ def scrape_images():
         return jsonify({"image_paths": image_paths}), 200
     else:
         return jsonify({"message": "URL and output directory are required."}), 400
+
+# Define the route for the image-based product detection endpoint
+@app.route('/image-product-detection', methods=['POST'])
+def image_product_detection():
+    # Get product image from request
+    product_image = request.files.get('product_image')
+
+    # Load the trained CNN model
+    model = load_cnn_model()  # Function to load the trained CNN model
+
+    # Preprocess the product image
+    image = load_img(product_image, target_size=(224, 224))
+    image = img_to_array(image)
+    image = np.expand_dims(image, axis=0)
+    image = image / 255.0  # Normalize pixel values
+
+    # Use the trained CNN model to predict product label
+    predicted_label = model.predict(image)
+    predicted_label = np.argmax(predicted_label)  # Get index of the predicted label
+
+    # Match the predicted label with product description using the vector database
+    # Replace the following line with your implementation for matching products
+    matching_products = ["Product A", "Product B", "Product C"]  # Example matching products
+
+    # Prepare the response
+    response = {
+        "predicted_product_description": "Product Description",  # Replace with actual product description
+        "matching_products": matching_products
+    }
+
+    return jsonify(response)
 
 
 if __name__ == '__main__':
