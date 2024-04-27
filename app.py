@@ -8,62 +8,7 @@ import numpy as np
 
 
 app = Flask(__name__)
-
-# Paths to training data CSV and image directory
-CSV_FILE = 'data/CNN_Model_Train_Data.csv'
-IMG_SIZE = (224, 224)  # Example size, adjust as needed
-
-# Prepare training data
-X_train, X_val, y_train, y_val = prepare_training_data(CSV_FILE, img_size=IMG_SIZE)
-
-# Build CNN model
-input_shape = (IMG_SIZE[0], IMG_SIZE[1], 3)  # Assuming 3 color channels (RGB)
-num_classes = len(np.unique(y_train))  # Number of unique labels
-model = build_cnn_model(input_shape, num_classes)
-
-# Train the model
-history = model.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_val, y_val))
-
-
-@app.route('/product-recommendation', methods=['POST'])
-def product_recommendation():
-    """
-    Endpoint for product recommendations based on natural language queries.
-    Input: Form data containing 'query' (string).
-    Output: JSON with 'products' (array of objects) and 'response' (string).
-    """
-    query = request.form.get('query', '')
-    # Process the query to find matching products
-    products = []  # Empty array, to be populated with product data
-    response = ""  # Empty string, to be filled with a natural language response
-    return jsonify({"products": products, "response": response})
-
-@app.route('/ocr-query', methods=['POST'])
-def ocr_query():
-    """
-    Endpoint to process handwritten queries extracted from uploaded images.
-    Input: Form data containing 'image_data' (file, base64-encoded image or direct file upload).
-    Output: JSON with 'products' (array of objects) and 'response' (string).
-    """
-    image_file = request.files.get('image_data')
-    # Process the image to extract text and find matching products
-    products = []  # Empty array, to be populated with product data
-    response = ""  # Empty string, to be filled with a natural language response
-    return jsonify({"products": products, "response": response})
-
-@app.route('/image-product-search', methods=['POST'])
-def image_product_search():
-    """
-    Endpoint to identify and suggest products from uploaded product images.
-    Input: Form data containing 'product_image' (file, base64-encoded image or direct file upload).
-    Output: JSON with 'products' (array of objects) and 'response' (string).
-    """
-    product_image = request.files.get('product_image')
-    # Process the product image to detect and match products
-    products = []  # Empty array, to be populated with product data
-    response = ""  # Empty string, to be filled with a natural language response
-    return jsonify({"products": products, "response": response})
-
+#MODULE ONE
 @app.route('/sample_response', methods=['GET'])
 def sample_response():
     """
@@ -103,6 +48,35 @@ def select_similarity_metric_endpoint():
     selected_metric = select_similarity_metric(dataset_vectors)
     return jsonify({"selected_metric": selected_metric})
 
+# Placeholder function for product recommendation logic
+def recommend_products(query):
+    # Placeholder logic to recommend products based on the query
+    products = ['Product A', 'Product B', 'Product C']
+    response = "Here are some recommended products based on your query: " + ', '.join(products)
+    return products, response
+
+# Define the endpoint for the Product Recommendation Service
+@app.route('/product-recommendation', methods=['POST'])
+def product_recommendation_service():
+    """
+    Endpoint for product recommendations based on natural language queries.
+    Input: Form data containing 'query' (string).
+    Output: JSON with 'products' (array of strings) and 'response' (string).
+    """
+    # Extract query from the request
+    query = request.form.get('query', '')
+
+    # Validate query (optional)
+    if not query:
+        return jsonify({"error": "Invalid query"}), 400
+
+    # Call the product recommendation function
+    products, response = recommend_products(query)
+
+    # Return JSON response with recommended products and response
+    return jsonify({"products": products, "response": response})
+
+#MODULE TWO
 @app.route('/scrape-images', methods=['POST'])
 def scrape_images():
     """
@@ -119,6 +93,23 @@ def scrape_images():
         return jsonify({"image_paths": image_paths}), 200
     else:
         return jsonify({"message": "URL and output directory are required."}), 400
+
+#MODULE THREE
+# Paths to training data CSV and image directory
+CSV_FILE = 'data/CNN_Model_Train_Data.csv'
+IMG_SIZE = (224, 224)  # Example size, adjust as needed
+
+# Prepare training data
+X_train, X_val, y_train, y_val = prepare_training_data(CSV_FILE, img_size=IMG_SIZE)
+
+# Build CNN model
+input_shape = (IMG_SIZE[0], IMG_SIZE[1], 3)  # Assuming 3 color channels (RGB)
+num_classes = len(np.unique(y_train))  # Number of unique labels
+model = build_cnn_model(input_shape, num_classes)
+
+# Train the model
+history = model.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_val, y_val))
+
 
 # Define the route for the image-based product detection endpoint
 @app.route('/image-product-detection', methods=['POST'])
@@ -150,6 +141,31 @@ def image_product_detection():
     }
 
     return jsonify(response)
+
+#MODULE FOUR
+# Define endpoint for text query interface
+@app.route('/text-query', methods=['POST'])
+def text_query():
+    query = request.json.get('query', '')
+    # Process the query and return response
+    response = "This is a sample response for text query: " + query
+    return jsonify({"response": response})
+
+# Define endpoint for image query interface
+@app.route('/image-query', methods=['POST'])
+def image_query():
+    # Handle image upload and process image
+    # Return response
+    response = "This is a sample response for image query"
+    return jsonify({"response": response})
+
+# Define endpoint for product image upload interface
+@app.route('/product-image-upload', methods=['POST'])
+def product_image_upload():
+    # Handle product image upload and process image
+    # Return response
+    response = "This is a sample response for product image upload"
+    return jsonify({"response": response})
 
 
 if __name__ == '__main__':
