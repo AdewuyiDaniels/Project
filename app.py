@@ -48,12 +48,6 @@ def select_similarity_metric_endpoint():
     selected_metric = select_similarity_metric(dataset_vectors)
     return jsonify({"selected_metric": selected_metric})
 
-# Placeholder function for product recommendation logic
-def recommend_products(query):
-    # Placeholder logic to recommend products based on the query
-    products = ['Product A', 'Product B', 'Product C']
-    response = "Here are some recommended products based on your query: " + ', '.join(products)
-    return products, response
 
 # Define the endpoint for the Product Recommendation Service
 @app.route('/product-recommendation', methods=['POST'])

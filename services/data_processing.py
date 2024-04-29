@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 
 def prepare_training_data(csv_file, img_size=(224, 224)):
     # Load training data from CSV
-    train_data = pd.read_csv(csv_file)
+    train_data = pd.read_csv('CNN_Model_Train_Data.csv')
 
     # Define image size and labels
     X = []
